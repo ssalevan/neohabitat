@@ -114,13 +114,23 @@ this.SERVER_OPS = {
 			}
 		},
 		"ARRIVAL_$": 			{ reqno: 9 },
-		"ATTACK$": 				{ reqno: 9 },
+		"ATTACK$": 				{ reqno: 9 
+			toClient: function (o, b) {
+				b.add(o.TARGET_ID);
+				b.add(o.SUCCESS);
+			}
+		},
 		"AUTO_TELEPORT_$": 		{ reqno: 21,
 			toClient: function (o, b) {
 				b.add(o.direction);
 			}
 		},
-		"BASH$": 				{ reqno: 10 },
+		"BASH$": 				{ reqno: 10 
+			toClient: function (o, b) {
+				b.add(o.TARGET_ID);
+				b.add(o.SUCCESS);
+			}
+		},
 		"BEEP$": 				{ reqno: 8 },
 		"BLAST$": 				{ reqno: 8 },
 		"CAUGHT_UP_$":	 		{ reqno: 17,
@@ -129,7 +139,13 @@ this.SERVER_OPS = {
 			},
 		},
 		"CHANGE$": 				{ reqno: 8 },
-		"CHANGE_CONTAINERS_$":	{ reqno: 19 },
+		"CHANGE_CONTAINERS_$":	{ reqno: 19 
+			toClient: function (o, b) {
+				b.add(o.CONTAINER);
+				b.add(o.X);
+				b.add(o.Y);
+			}
+		},
 		"BUGOUT$": 				{ reqno: 8 },
 		"CHANGESTATE$": 		{ reqno: 8 },
 		"CHANGESTATE_$": 		{ reqno: 8 },
@@ -566,6 +582,20 @@ this.translate = {
 				b.add(o.SPRAY_CUSTOMIZE_0);
 				b.add(o.SPRAY_CUSTOMIZE_1);
 			}
+		},
+		DIRECT: {
+			toClient: function(o, b) {
+				b.add(o.text);
+			}
+		},
+		ATTACK: {
+			toServer: function(a, m) {
+				m.pointed_noid = a[0];
+			},
+			toClient: function(o, b) {
+				b.add(o.TARGET_ID);
+				b.add(o.SUCCESS);
+			}
 		}
 };
 
@@ -684,11 +714,21 @@ this.Floor_lamp	= {
 };
 
 this.Chest = {
-		clientMessages: {
-			0:{ op:"HELP" },
-			4:{ op:"CLOSECONTAINER" },
-			5:{ op:"OPENCONTAINER" }
-		}
+	clientMessages: {
+		0:{ op:"HELP" },
+		4:{ op:"CLOSECONTAINER" },
+		5:{ op:"OPENCONTAINER" }
+	}
+};
+
+this.Compass = {
+	clientMessages: {
+		0:{ op:"HELP" },
+		1:{ op:"GET" },
+		2:{ op:"PUT" },
+		3:{ op:"THROW" },
+		4:{ op:"DIRECT" }
+	}
 };
 
 this.magical	= {
@@ -699,6 +739,15 @@ this.magical	= {
 			3:{ op:"THROW" },
 			4:{ op:"MAGIC" }
 		}		
+};
+
+this.weapon = {
+		clientMessages: {
+			0:{ op:"HELP" },
+			1:{ op:"GET" },
+			2:{ op:"PUT" },
+			5:{ op:"ATTACK" }
+		}
 };
 
 this.help		= { 
@@ -736,4 +785,5 @@ this.Trapezoid			= this.help;
 this.Super_trapezoid 	= this.help;
 this.Flat				= this.help;
 this.Hot_tub		 	= this.help;
+this.Gun       = this.weapon;
 

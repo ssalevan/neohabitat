@@ -52,6 +52,8 @@ public class Avatar extends Container implements UserMod {
     public static final int DOOR_OFFSET = 12;
     public static final int BUILDING_OFFSET = 28;
     
+    public static final String DEFAULT_TURF = "context-test";
+    
     public int HabitatClass() {
         return CLASS_AVATAR;
     }
@@ -134,6 +136,8 @@ public class Avatar extends Container implements UserMod {
     public int        dest_x          = 0;
     public int        dest_y          = 0;
     
+    public String     turf            = "context-test";
+    
     
     private String     from_region		= "";
     private String     to_region		= "";	   
@@ -154,7 +158,7 @@ public class Avatar extends Container implements UserMod {
             OptInteger nitty_bits, OptString bodyType, OptInteger stun_count, OptInteger bankBalance,
             OptInteger activity, OptInteger action, OptInteger health, OptInteger restrainer, 
             OptInteger transition_type, OptInteger from_orientation, OptInteger from_direction,
-            OptString from_region, OptString to_region, int[] custom) {
+            OptString from_region, OptString to_region, OptString turf, int[] custom) {
         super(style, x, y, orientation, gr_state);
         if (nitty_bits.value(-1) != -1) {
             this.nitty_bits = unpackBits(nitty_bits.value());
@@ -176,6 +180,7 @@ public class Avatar extends Container implements UserMod {
         this.transition_type = transition_type.value(WALK_ENTRY);
         this.from_region = from_region.value("");
         this.to_region = to_region.value("");
+        this.turf = turf.value(DEFAULT_TURF);
         this.custom = custom;
     }
     
@@ -757,6 +762,20 @@ public class Avatar extends Container implements UserMod {
     		msg.addParameter("context", contextRef);
     		msg.finish();
     		who.send(msg);
+    	}
+    }
+    
+    public void drop_object_in_hand() {
+    	if (contents(HANDS) != null) {
+    		HabitatMod obj = contents(HANDS);
+    		obj.x = 8;
+    		obj.y = 130;
+    		obj.checkpoint_object(obj);
+    		send_broadcast_msg(THE_REGION, "CHANGE_CONTAINERS_$",
+    			"CONTAINER", THE_REGION,
+    			"X", obj.x,
+    			"Y", obj.y);
+    		change_containers(this, current_region(), obj.y, true);
     	}
     }
 }

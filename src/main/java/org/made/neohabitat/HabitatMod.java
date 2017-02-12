@@ -431,6 +431,7 @@ public abstract class HabitatMod extends Mod implements HabitatVerbs, ObjectComp
         
         /* If getting a compass, match its orientation to the current region */
         if (selfClass == CLASS_COMPASS) {
+        	this.gr_state = current_region().orientation;
             this.send_fiddle_msg(THE_REGION, noid, C64_GR_STATE_OFFSET, current_region().orientation);            
         }
         send_reply_success(from); // Yes, your GET request succeeded.
@@ -2640,4 +2641,31 @@ public abstract class HabitatMod extends Mod implements HabitatVerbs, ObjectComp
         object.checkpoint();
     }
 
+    /**
+     * Terminates an avatar with extreme prejudice.
+     * 
+     * @param victim
+     *               The Avatar to terminate.
+     */
+    public void kill_avatar(Avatar victim) {
+    	for (int i = 0; i < victim.capacity() - 1; i++) {
+    		if (victim.contents(i) != null) {
+    			if (i == HANDS) {
+    				victim.drop_object_in_hand();
+    			} else if (i != HEAD && i != MAIL_SLOT) {
+    				// TODO(steve): Uncomment once object deletion works.
+    				//destroy_object(victim.contents(i));
+    			}
+    		}
+    	}
+    	
+    	victim.x = 80;
+    	victim.y = 132;
+    	victim.health = 255;
+    	victim.bankBalance = Math.round(((float) victim.bankBalance) * 0.8f);
+    	victim.stun_count = 0;
+
+    	goto_new_region(victim, victim.turf, 0, DEATH_ENTRY);
+    }
+    
 }
