@@ -219,8 +219,9 @@ public class Avatar extends Container implements UserMod {
         // If traveling as a ghost, don't do ANYTHING fancy 
         if (noid == GHOST_NOID)
             return;
-        
-        // TODO lights_on();
+
+        // If the avatar has any objects in their hands, perform any necessary side effects.
+        in_hands_side_effects(this);
         
         // If walking in, set the new (x,y) based on the old (x,y), the entry
         // direction, the rotation of the region transition, the horizon of the

@@ -250,7 +250,11 @@ this.SERVER_OPS = {
 		"REMOVE$":				{ reqno: 29 },
 		"RESET$": 				{ reqno: 9 },
 		"RETURN$": 				{ reqno: 1 },
-		"CHANGELIGHT_$": 		{ reqno: 13 },
+		"CHANGELIGHT_$": 		{ reqno: 13,
+			toClient: function (o, b) {
+				b.add(o.SUCCESS);
+			}
+		},
 		"ROLL$": 				{ reqno: 8 },
 		"RUB$": 				{ reqno: 9 },
 		"SCAN$":	 			{ reqno: 8 },
@@ -585,7 +589,7 @@ this.translate = {
 		},
 		DIRECT: {
 			toClient: function(o, b) {
-				b.add(o.text);
+				b.add(o.text.getBytes());
 			}
 		},
 		ATTACK: {

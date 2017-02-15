@@ -65,7 +65,7 @@ public abstract class Weapon extends HabitatMod {
 				damageableTarget = target.container();
 			}
 			if (damageableTarget.HabitatClass() == CLASS_AVATAR) {
-				Avatar damageableAvatar = (Avatar) (damageableTarget);
+				Avatar damageableAvatar = (Avatar) damageableTarget;
 				damageableAvatar.activity = SIT_GROUND;
 				success = damage_avatar(damageableAvatar);
 				send_neighbor_msg(from, fromAvatar.noid, "ATTACK$",
