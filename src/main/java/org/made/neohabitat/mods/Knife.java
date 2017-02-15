@@ -7,22 +7,21 @@ import org.elkoserver.json.JSONLiteral;
 import org.made.neohabitat.Weapon;
 
 /**
- * Habitat Gun Mod
+ * Habitat Knife Mod
  * 
- * With this mod, you've got two tickets to the gun show.  It's a ranged weapon
- * allowing for ranged attacks on either Avatars or damageable objects (currently
- * just mailboxes).
+ * This is very similar to the Gun mod, except that the Avatar using it must
+ * be standing adjacent to the Avatar or object they wish to damage.
  * 
  * @author steve
  */
-public class Gun extends Weapon {
+public class Knife extends Weapon {
     
     public int HabitatClass() {
-        return CLASS_GUN;
+        return CLASS_KNIFE;
     }
     
     public String HabitatModName() {
-        return "Gun";
+        return "Knife";
     }
     
     public int capacity() {
@@ -46,7 +45,7 @@ public class Gun extends Weapon {
     }
     
     @JSONMethod({ "style", "x", "y", "orientation", "gr_state" })
-    public Gun(OptInteger style, OptInteger x, OptInteger y, OptInteger orientation, OptInteger gr_state) {
+    public Knife(OptInteger style, OptInteger x, OptInteger y, OptInteger orientation, OptInteger gr_state) {
         super(style, x, y, orientation, gr_state);
     }
     

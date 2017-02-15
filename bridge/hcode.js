@@ -114,7 +114,7 @@ this.SERVER_OPS = {
 			}
 		},
 		"ARRIVAL_$": 			{ reqno: 9 },
-		"ATTACK$": 				{ reqno: 9 
+		"ATTACK$": 				{ reqno: 9,
 			toClient: function (o, b) {
 				b.add(o.TARGET_ID);
 				b.add(o.SUCCESS);
@@ -125,7 +125,7 @@ this.SERVER_OPS = {
 				b.add(o.direction);
 			}
 		},
-		"BASH$": 				{ reqno: 10 
+		"BASH$": 				{ reqno: 10,
 			toClient: function (o, b) {
 				b.add(o.TARGET_ID);
 				b.add(o.SUCCESS);
@@ -139,7 +139,7 @@ this.SERVER_OPS = {
 			},
 		},
 		"CHANGE$": 				{ reqno: 8 },
-		"CHANGE_CONTAINERS_$":	{ reqno: 19 
+		"CHANGE_CONTAINERS_$":	{ reqno: 19,
 			toClient: function (o, b) {
 				b.add(o.CONTAINER);
 				b.add(o.X);
@@ -786,4 +786,4 @@ this.Super_trapezoid 	= this.help;
 this.Flat				= this.help;
 this.Hot_tub		 	= this.help;
 this.Gun       = this.weapon;
-
+this.Knife   = this.weapon;

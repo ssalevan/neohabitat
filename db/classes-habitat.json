@@ -195,6 +195,16 @@
 			"type": "class",
 			"tag": "Compass",
 			"name": "org.made.neohabitat.mods.Compass"
+		},
+		{
+			"type": "class",
+			"tag": "Gun",
+			"name": "org.made.neohabitat.mods.Gun"
+		},
+		{
+			"type": "class",
+			"tag": "Knife",
+			"name": "org.made.neohabitat.mods.Knife"
 		}
 	]
 }
