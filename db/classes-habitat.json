@@ -210,6 +210,16 @@
 			"type": "class",
 			"tag": "Knife",
 			"name": "org.made.neohabitat.mods.Knife"
+		},
+		{
+			"type": "class",
+			"tag": "Tokens",
+			"name": "org.made.neohabitat.mods.Tokens"
+		},
+		{
+			"type": "class",
+			"tag": "Coke_machine",
+			"name": "org.made.neohabitat.mods.Coke_machine"
 		}
 	]
 }

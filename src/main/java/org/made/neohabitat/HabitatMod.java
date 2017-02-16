@@ -1245,6 +1245,37 @@ public abstract class HabitatMod extends Mod implements HabitatVerbs, ObjectComp
         return (null != inHands && inHands.noid == object.noid);
     }
     
+    
+    /**
+     * Returns the HabitatMod of the item held in the avatar's hand.
+     * 
+     * @param avatar
+     * @return
+     */
+    public HabitatMod heldObject(Avatar avatar) {
+    	return avatar.contents(HANDS);
+    }
+    
+    
+    /**
+     * Returns the HabitatMod of the item held in the user's avatar's hand.
+     * 
+     * @param from
+     * @return
+     */
+    public HabitatMod heldObject(User from) {
+    	return heldObject(avatar(from));
+    }
+    
+    /**
+     * Returns the HabitatMod of the item held in *this* avatar object.
+     * 
+     * @return
+     */
+    public HabitatMod heldObject() {
+    	return heldObject((Avatar) this);
+    }
+    
     /**
      * wearing -- Return true iff the avatar is wearing (head slot) a given
      * object.
@@ -2670,10 +2701,36 @@ public abstract class HabitatMod extends Mod implements HabitatVerbs, ObjectComp
     	goto_new_region(victim, victim.turf, 0, DEATH_ENTRY);
     }
     
+	  
+    /*
+     * Is the the mod a Seating Class, requiring special handling?
+     * See org.neohabitat.Seating
+     * 
+     * @param mod The mod being tested
+     * @return true if seating.
+     */
+    public boolean isSeating(HabitatMod mod) {
+    	return (mod.HabitatClass() == CLASS_COUCH ||
+    			mod.HabitatClass() == CLASS_CHAIR ||
+    			mod.HabitatClass() == CLASS_CHAIR);
+    }  
+    
     /**
-     * Originally coded as lights_on in helpers.pl1
+     * Is this mod a Seating Class, requiring special handling?
+     * See org.neohabitat.Seating
+     * 
+     * @return true if seating.
+     */    
+    public boolean isSeating() {
+    	return isSeating(this);
+    }
+    
+    /**
+     * Originally coded as lights_on in helpers.pl1, this method ensures
+     * that necessary side effects are applied whenever an Avatar is built.
+     * 
      * @param who
-     * 			  
+     * 			  The avatar upon which to perform in-hands side effects.
      */
     public void in_hands_side_effects(Avatar who) {
     	if (who.contents(HANDS) != null) {
@@ -2692,5 +2749,4 @@ public abstract class HabitatMod extends Mod implements HabitatVerbs, ObjectComp
     		}
     	}
     }
-    
 }

@@ -222,7 +222,12 @@ this.SERVER_OPS = {
 		"OPENCONTAINER$": 		{ reqno: 19 },
 		"ORACLESPEAK_$":	 	{ reqno: 8 },
 		"PAID$":	 			{ reqno: 30 },
-		"PAY$": 				{ reqno: 8 },
+		"PAY$": 				{ reqno: 8,
+			toClient: function (o,b) { 
+				b.add(o.amount_lo);
+				b.add(o.amount_hi);
+			}
+		},
 		"PAYTO$":	 			{ reqno: 8 },
 		"PLAY_$": 				{ reqno: 14 },
 		"POSTURE$": 			{ reqno: 20,
@@ -604,6 +609,29 @@ this.translate = {
 			toClient: function(o, b) {
 				b.add(o.TARGET_ID);
 				b.add(o.SUCCESS);
+		},
+		PAYTO: {
+			toServer: function(a,m) {
+				m.target_id	= a[0];
+				m.amount_lo = a[1];
+				m.amount_hi = a[2];
+			},
+			toClient: function(o, b) {
+				b.add(o.err);
+			}
+		},
+		PAY: {
+			toClient: function(o, b) {
+				b.add(o.err);
+			}
+		},
+		SPLIT: {
+			toServer: function(a,m) {
+				m.amount_lo = a[0];
+				m.amount_hi = a[1];
+			},
+			toClient: function(o, b) {
+				b.add(o.err);
 			}
 		}
 };
@@ -744,6 +772,24 @@ this.Fountain = {
 		clientMessages: {
 			0:{ op:"HELP" },
 			4:{ op:"ASK" },
+		}
+}
+
+this.Tokens = {
+		clientMessages: {
+			0:{ op:"HELP" },
+			1:{ op:"GET" },
+			2:{ op:"PUT" },
+			3:{ op:"THROW" },
+			4:{ op:"PAYTO" },
+			5:{ op:"SPLIT" }
+		}
+}
+
+this.Coke_machine = {
+		clientMessages: {
+			0:{ op:"HELP" },
+			4:{ op:"PAY" }
 		}
 }
 

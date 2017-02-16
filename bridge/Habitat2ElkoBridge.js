@@ -107,13 +107,38 @@ function addDefaultHead(db, userRef, fullName) {
 				"type": "Head",
 				"y": 6,
 				"style": rnd(220),
-				"orient": rnd(3) * 8
+				"orientation": rnd(3) * 8
 			}
-			]
+		]
 	}, function(err, result) {
 		Assert.equal(err, null);
 		if (result === null) {
 			Trace.debug("Unable to add " + headRef + " for " + userRef);
+		}
+	}
+	)
+}
+
+
+function addDefaultTokens(db, userRef, fullName) {
+	tokenRef = "item-" + userRef.substring(5)+".tokens";
+	db.collection('odb').insertOne({
+		"ref": tokenRef,
+		"type": "item",
+		"name": "Money for " + fullName,
+		"in":userRef,
+		"mods": [
+			{
+				"type": "Tokens",
+				"y": 0,
+				"denom_lo": 0,
+				"denom_hi": 4
+			}
+		]
+	}, function(err, result) {
+		Assert.equal(err, null);
+		if (result === null) {
+			Trace.debug("Unable to add " + tokenRef + " for " + userRef);
 		}
 	}
 	)
@@ -125,7 +150,6 @@ function confirmOrCreateUser(fullName) {
 		Assert.equal(null, err);
 		findOne(db, {ref: userRef}, function(err, result) {
 			if (result === null || Argv.force) {
-				Trace.debug("Inserting user into MongoDB:", userRef);
 				insertUser(db, {
 					"type": "user",
 					"ref": userRef,
@@ -142,12 +166,11 @@ function confirmOrCreateUser(fullName) {
 						}
 						]
 				}, function() {
-					Trace.debug("Successfully inserted record for user:", userRef);
 					addDefaultHead(db, userRef, fullName);
+					addDefaultTokens(db, userRef, fullName);
 					db.close();
 				});
 			} else {
-				Trace.debug("Found result for QLink user:", userRef, result);
 				db.close();
 			}
 		});
@@ -714,7 +737,13 @@ var encodeState = {
 			buf.add(state.flat_type || 0);
 			return buf;
 		},
-		Spray_can:  function (state, container, buf) { return (this.common(state, container, buf)); },
+		Tokens:  function(state, container, buf) {
+			buf = this.common(state, container, buf);
+			buf.add(state.denom_lo);
+			buf.add(state.denom_hi);
+			return buf;
+		},
+		Spray_can:  function (state, container, buf) { return (this.common  (state, container, buf)); },
 		Bag: 		function (state, container, buf) { return (this.openable(state, container, buf)); },
 		Box:		function (state, container, buf) { return (this.openable(state, container, buf)); },
 		Building:	function (state, container, buf) { return (this.common	(state, container, buf)); },
@@ -744,10 +773,17 @@ var encodeState = {
 		Flag: 		function (state, container, buf) { return (this.massive (state, container, buf)); },
 		Trapezoid: 	function (state, container, buf) { return (this.polygonal(state, container, buf)); },
 		Hot_tub:    function (state, container, buf) { return (this.common  (state, container, buf)); },
+<<<<<<< HEAD
 		Compass:  function(state, container, buf) { return (this.common(state, container, buf)); },
 		Gun:  function(state, container, buf) { return (this.common(state, container, buf)); },
 		Knife:  function(state, container, buf) { return (this.common(state, container, buf)); },
 		Fountain:   function (state, container, buf) { return (this.common  (state, container, buf)); }
+=======
+		Fountain:   function (state, container, buf) { return (this.common  (state, container, buf)); },
+		Compass:    function (state, container, buf) { return (this.common  (state, container, buf)); },
+		Coke_machine:function (state, container, buf){ return (this.common  (state, container, buf)); }
+
+>>>>>>> master
 };
 
 function habitatEncodeElkoModState (state, container, buf) {
@@ -905,8 +941,17 @@ function parseIncomingElkoServerMessage(client, server, data) {
 		client.state.refToNoid[o.ref] = o.noid;
 		if (o.className === "Avatar") {
 			client.state.numAvatars++;
+			if (!o.you) {
+				if (undefined == mod.sittingIn || mod.sittingIn == "") {
+					o.container = 0;
+				} else {
+					o.container 	= mod.sittingIn;			// Pretend this avatar is contained by the seat.
+					mod.y			= mod.sittingSlot;
+					mod.activity	= mod.sittingAction;
+					mod.action		= mod.sittingAction;
+				}
+			}
 			if (!o.you && !client.state.waitingForAvatar) { // Async avatar arrival wants to bunch up contents.
-				o.container					= 0;
 				client.state.otherNoid		= o.noid;
 				client.state.otherRef		= o.ref;
 				client.state.otherContents.push(o);
