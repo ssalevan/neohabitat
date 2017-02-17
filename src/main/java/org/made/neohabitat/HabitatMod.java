@@ -18,6 +18,9 @@ import org.made.neohabitat.mods.Region;
 import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
 
+import java.util.Formatter;
+import java.util.UUID;
+
 // TODO CHIP? Should we assureSameContext (and other elko patterns) assuming ill behaving clients? If so, how and when?
 
 /**
@@ -1526,10 +1529,12 @@ public abstract class HabitatMod extends Mod implements HabitatVerbs, ObjectComp
      * Dump a string to the debugging server log.
      * 
      * @param msg
-     *            The message to log.
+     *            The message to log, with optional java.util.Formatter options (%s, %d, etc.)
+     * @param args
+     *            Parameters to format into the string
      */
-    public void trace_msg(String msg) {
-        Trace.trace("habitat").warningm(msg);
+    public void trace_msg(String msg, Object... args) {
+        Trace.trace("habitat").warningm(new Formatter().format(msg, args).toString());
     }
     
     /**
@@ -2681,7 +2686,7 @@ public abstract class HabitatMod extends Mod implements HabitatVerbs, ObjectComp
      *               The Avatar to terminate.
      */
     public void kill_avatar(Avatar victim) {
-    	for (int i = 0; i < victim.capacity() - 1; i++) {
+        for (int i = 0; i < victim.capacity() - 1; i++) {
     		if (victim.contents(i) != null) {
     			if (i == HANDS) {
     				victim.drop_object_in_hand();
@@ -2691,14 +2696,15 @@ public abstract class HabitatMod extends Mod implements HabitatVerbs, ObjectComp
     			}
     		}
     	}
-    	
+
     	victim.x = 80;
     	victim.y = 132;
     	victim.health = 255;
     	victim.bankBalance = Math.round(((float) victim.bankBalance) * 0.8f);
     	victim.stun_count = 0;
+        victim.gen_flags[MODIFIED] = true;
 
-    	goto_new_region(victim, victim.turf, 0, DEATH_ENTRY);
+        victim.change_regions(victim.turf, AUTO_TELEPORT_DIR, DEATH_ENTRY);
     }
     
 	  

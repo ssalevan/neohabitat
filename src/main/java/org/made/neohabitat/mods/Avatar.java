@@ -210,6 +210,7 @@ public class Avatar extends Container implements UserMod {
             result.addParameter("from_orientation", from_orientation);
             result.addParameter("from_direction",   from_direction);
             result.addParameter("transition_type",	transition_type);
+            result.addParameter("turf", turf);
         }
         if (result.control().toClient() && sittingIn != 0) {
         	result.addParameter("sittingIn", sittingIn);
@@ -326,15 +327,13 @@ public class Avatar extends Container implements UserMod {
             for (int i=0; i < noids.length; i++) {
                 HabitatMod obj = noids[i];
                 if (obj != null && obj.HabitatClass() == CLASS_TOKENS) {
-                    /*
-                      Tokens token = (Tokens) obj;
-                      int denom = (token.denom_lo + token.denom_hi * 256) * 50 / 100;
-                      token.denom_lo = denom % 256;
-                      token.denom_hi = (denom - token.denom_lo) / 256;
-                      if (denom == 0)
-                          token.denom_lo = 1;
-                      token.gen_flags(MODIFIED) = true;
-                     */                      
+                  Tokens token = (Tokens) obj;
+                  int denom = (token.denom_lo + token.denom_hi * 256) * 50 / 100;
+                  token.denom_lo = denom % 256;
+                  token.denom_hi = (denom - token.denom_lo) / 256;
+                  if (denom == 0)
+                      token.denom_lo = 1;
+                  token.gen_flags[MODIFIED] = true;
                 }
             }
         }
@@ -766,7 +765,10 @@ public class Avatar extends Container implements UserMod {
     public void change_regions(String contextRef, int direction, int type) {
     	Region	region		= current_region();
     	User	who			= (User) this.object();
-    	
+
+        trace_msg("Avatar %s changing regions to context=%s, direction=%d, type=%d", obj_id(),
+            contextRef, direction, type);
+
     	// TODO change_regions exceptions! see region.pl1
     	
         to_region			= contextRef;    	
@@ -792,13 +794,13 @@ public class Avatar extends Container implements UserMod {
     		HabitatMod obj = contents(HANDS);
     		obj.x = 8;
     		obj.y = 130;
-    		obj.gen_flags[MODIFIED] = true;
-    		obj.checkpoint_object(obj);
+            // For C64-side implementation, see line 110 of actions.m.
     		send_broadcast_msg(THE_REGION, "CHANGE_CONTAINERS_$",
-    			"CONTAINER", THE_REGION,
-    			"X", obj.x,
-    			"Y", obj.y);
-    		change_containers(this, current_region(), obj.y, true);
+                "object_noid", obj.noid,
+    			"container_noid", THE_REGION,
+    			"x", obj.x,
+    			"y", obj.y);
+    		change_containers(obj, current_region(), obj.y, true);
     	}
     }
 }

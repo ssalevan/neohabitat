@@ -3,9 +3,20 @@ package org.made.neohabitat;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.OptInteger;
 import org.elkoserver.server.context.User;
+import org.elkoserver.util.trace.Trace;
 import org.made.neohabitat.mods.Avatar;
 
+
+/**
+ * This is the base class for any ranged or non-ranged handheld weapon,
+ * such as the Gun, Knife, or Club.
+ *
+ * @author steve
+ */
 public abstract class Weapon extends HabitatMod {
+
+	/* The total amount of damage to be rendered by an ATTACK. */
+	public static final int DAMAGE_DECREMENT = 100;
 
 	/* The activity ID of sitting on the ground */
 	public static final int SIT_GROUND = 132;
@@ -55,7 +66,7 @@ public abstract class Weapon extends HabitatMod {
 			send_private_msg(from, fromAvatar.noid, from, "SPEAK$",
 				"I can't attack.  I am stunned.");
 		} else if (current_region().nitty_bits[WEAPONS_FREE]) {
-			object_broadcast(this.noid, 
+			object_say(from,
 				"This is a weapons-free zone.  Your weapon will not operate here.");
 		} else if (adjacent(target) || is_ranged_weapon()) {
 			HabitatMod damageableTarget = target;
@@ -63,47 +74,52 @@ public abstract class Weapon extends HabitatMod {
 				// If the weapon is attacking an Avatar's head, set the target to the
 				// Avatar which contains it.
 				damageableTarget = target.container();
+				trace_msg("Weapon target is head, container is: %s", damageableTarget.obj_id());
 			}
 			if (damageableTarget.HabitatClass() == CLASS_AVATAR) {
 				Avatar damageableAvatar = (Avatar) damageableTarget;
 				damageableAvatar.activity = SIT_GROUND;
 				success = damage_avatar(damageableAvatar);
+				trace_msg("Avatar %s damaged, health=%d, success=%d", damageableAvatar.obj_id(),
+					damageableAvatar.health, success);
 				send_neighbor_msg(from, fromAvatar.noid, "ATTACK$",
-					"TARGET_ID", damageableTarget.noid,
-					"SUCCESS", success);
+					"ATTACK_TARGET", damageableTarget.noid,
+					"ATTACK_DAMAGE", success);
 			} else {
 				success = damage_object(damageableTarget);
+				if (success == DESTROY) {
+					trace_msg("Object %s destroyed by weapon", damageableTarget.obj_id());
+				} else {
+					trace_msg("Object %s NOT destroyed by weapon", damageableTarget.obj_id());
+				}
 				send_neighbor_msg(from, fromAvatar.noid, "BASH$",
-					"TARGET_ID", damageableTarget.noid,
-					"SUCCESS", success);
+					"BASH_TARGET", damageableTarget.noid,
+					"BASH_SUCCESS", success);
 			}
 		} else {
 			success = FALSE;
 		}
 
 		send_reply_msg(from, noid,
-			"TARGET_ID", target.noid,
-			"SUCCESS", success);
+			"ATTACK_target", target.noid,
+			"ATTACK_result", success);
 
 		if (success == DEATH) {
+			trace_msg("Killing Avatar %s...", target.obj_id());
 			kill_avatar((Avatar) target);
 		}
 	}
 
 	public int damage_avatar(Avatar who) {
+		trace_msg("Damaging Avatar %s...", who.obj_id());
+		who.health -= DAMAGE_DECREMENT;
 		if (who.health <= 0) {
-			return HIT;
-		} else if (who.health <= 20) {
-			// He's dead!
-			who.health -= 20;
-			who.gen_flags[MODIFIED] = true;
-			who.checkpoint_object(who);
+			// He's dead, Jim.
+			trace_msg("Avatar %s has been killed", who.obj_id());
 			return DEATH;
 		} else {
 			// Naw, he's only wounded.
-			who.health -= 20;
-			who.gen_flags[MODIFIED] = true;
-			who.checkpoint_object(who);
+			trace_msg("Avatar %s has been wounded", who.obj_id());
 			return HIT;
 		}
 	}
@@ -125,4 +141,5 @@ public abstract class Weapon extends HabitatMod {
 	public boolean is_ranged_weapon() {
 		return HabitatClass() == CLASS_GUN;
 	}
+
 }

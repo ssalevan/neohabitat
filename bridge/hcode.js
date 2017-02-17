@@ -6,6 +6,8 @@
 /* jslint bitwise: true */
 /* jshint esversion: 6 */
 
+const Trace		 	= require('winston');
+
 this.MICROCOSM_ID_BYTE	= 0x55;
 this.ESCAPE_CHAR		= 0x5D;
 this.END_OF_MESSAGE		= 0x0D;
@@ -116,8 +118,8 @@ this.SERVER_OPS = {
 		"ARRIVAL_$": 			{ reqno: 9 },
 		"ATTACK$": 				{ reqno: 9,
 			toClient: function (o, b) {
-				b.add(o.TARGET_ID);
-				b.add(o.SUCCESS);
+				b.add(o.ATTACK_TARGET);
+				b.add(o.ATTACK_DAMAGE);
 			}
 		},
 		"AUTO_TELEPORT_$": 		{ reqno: 21,
@@ -127,8 +129,8 @@ this.SERVER_OPS = {
 		},
 		"BASH$": 				{ reqno: 10,
 			toClient: function (o, b) {
-				b.add(o.TARGET_ID);
-				b.add(o.SUCCESS);
+				b.add(o.BASH_TARGET);
+				b.add(o.BASH_SUCCESS);
 			}
 		},
 		"BEEP$": 				{ reqno: 8 },
@@ -141,9 +143,12 @@ this.SERVER_OPS = {
 		"CHANGE$": 				{ reqno: 8 },
 		"CHANGE_CONTAINERS_$":	{ reqno: 19,
 			toClient: function (o, b) {
-				b.add(o.CONTAINER);
-				b.add(o.X);
-				b.add(o.Y);
+				Trace.debug("Changing container: noid=%s, contnoid=%s, x=%d, y=%d",
+					o.object_noid, o.container_noid, o.x, o.y);
+				b.add(o.object_noid);
+				b.add(o.container_noid);
+				b.add(o.x);
+				b.add(o.y);
 			}
 		},
 		"BUGOUT$": 				{ reqno: 8 },
@@ -571,7 +576,7 @@ this.translate = {
 				b.add(o.nextpage);
 				b.add(o.text.getBytes());
 				return true;		// This reply should be split upon transmission to the client.
-			},
+			}
  		},
 		LEAVE: {
 			toServer: function(a, m) {
@@ -607,8 +612,9 @@ this.translate = {
 				m.pointed_noid = a[0];
 			},
 			toClient: function(o, b) {
-				b.add(o.TARGET_ID);
-				b.add(o.SUCCESS);
+				b.add(o.ATTACK_result);
+				b.add(o.ATTACK_target);
+			}
 		},
 		PAYTO: {
 			toServer: function(a,m) {
