@@ -1,5 +1,6 @@
 import json
 import os
+import pdb
 import uuid
 
 from json import JSONEncoder
@@ -18,7 +19,7 @@ ORIENTATION_TO_ID = {
 
 
 def _default(self, obj):
-    return getattr(obj.__class__, "to_json", _default.default)(obj)
+  return getattr(obj.__class__, "to_json", _default.default)(obj)
 
 _default.default = JSONEncoder().default
 JSONEncoder.default = _default
@@ -59,7 +60,7 @@ class Mod(object):
       mod_json['style'] = int(self.params['style'])
     if 'gr_state' in self.params:
       mod_json['gr_state'] = int(self.params['gr_state'])
-    if self.additional_params:
+    if self.additional_params and self.neohabitat_name == 'Sign':
       mod_json['ascii'] = self.neohabitat_ascii_params
     return mod_json
 
@@ -154,6 +155,7 @@ class Region(object):
     for mod in mods[0][1]['mod']:
       mod_dict = mod[1]
       mod_identifier = mod_dict['mod_identifier'][0]
+      pdb.set_trace()
 
       mod_params = {}
       if 'mod_params' in mod_dict:
