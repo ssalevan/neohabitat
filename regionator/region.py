@@ -27,13 +27,16 @@ JSONEncoder.default = _default
 
 class Mod(object):
   def __init__(self, region, identifier, params={}, additional_params={},
-      contained_mods=[]):
+      contained_mods=[], parent=None):
     self.region = region
     self.identifier = identifier
     self.params = params
     self.additional_params = additional_params
     self.contained_mods = contained_mods
     self.id = str(uuid.uuid4())[:4]
+    self.parent = parent
+    for contained_mod in self.contained_mods:
+      contained_mod.parent = self
 
   def __repr__(self):
     return '<Mod(identifier="{0}", params={1})>'.format(self.identifier, self.params)
@@ -74,13 +77,16 @@ class Mod(object):
         self.region.name.replace('-', '.'))
 
   def to_json(self):
-    return {
+    json_mod = {
       'type': 'item',
       'ref': self.neohabitat_ref,
       'name': self.neohabitat_name,
       'in': self.region.neohabitat_context,
       'mods': [self.neohabitat_mod],
     }
+    if self.parent is not None:
+      json_mod['container'] = self.parent.neohabitat_ref
+    return json_mod
 
 
 class Region(object):
@@ -155,7 +161,6 @@ class Region(object):
     for mod in mods[0][1]['mod']:
       mod_dict = mod[1]
       mod_identifier = mod_dict['mod_identifier'][0]
-      pdb.set_trace()
 
       mod_params = {}
       if 'mod_params' in mod_dict:
@@ -166,8 +171,50 @@ class Region(object):
         mod_params_additional.update(
             self._parse_params(mod_dict['mod_params_additional'][0][0]))
 
+      # Handles processing of contained mods using the power of Hack Mode 7.
+      contained_mods = []
+      if 'inner_mod_1' in mod_dict:
+        for inner_mod_1 in mod_dict['inner_mod_1']:
+          inner_mod_1_dict = inner_mod_1[1]
+          inner_mod_1_identifier = mod_dict['inner_mod_1_identifier'][0]
+
+          inner_mod_1_params = {}
+          if 'inner_mod_1_params' in inner_mod_1_dict:
+            inner_mod_1_params.update(
+                self._parse_params(inner_mod_1_dict['inner_mod_1_params'][0][0]))
+
+          inner_mod_1_params_additional = {}
+          if 'inner_mod_1_params_additional' in inner_mod_1_dict:
+            inner_mod_1_params_additional.update(
+                self._parse_params(inner_mod_1_dict['inner_mod_1_params_additional'][0][0]))
+
+          inner_mod_1_contained_mods = []
+          if 'inner_mod_2' in mod_dict:
+            for inner_mod_2 in mod_dict['inner_mod_2']:
+              inner_mod_2_dict = inner_mod_2[1]
+              inner_mod_2_identifier = mod_dict['inner_mod_2_identifier'][0]
+
+              inner_mod_2_params = {}
+              if 'inner_mod_2_params' in inner_mod_2_dict:
+                inner_mod_2_params.update(
+                    self._parse_params(inner_mod_2_dict['inner_mod_2_params'][0][0]))
+
+              inner_mod_2_params_additional = {}
+              if 'inner_mod_2_params_additional' in inner_mod_2_dict:
+                inner_mod_2_params_additional.update(
+                    self._parse_params(inner_mod_2_dict['inner_mod_2_params_additional'][0][0]))         
+              inner_mod_1_contained_mods.append(
+                  Mod(region=self, identifier=inner_mod_2_identifier,
+                      params=inner_mod_2_params,
+                      additional_params=inner_mod_2_params_additional))
+          contained_mods.append(
+              Mod(region=self, identifier=inner_mod_1_identifier,
+                  params=inner_mod_1_params,
+                  additional_params=inner_mod_1_params_additional,
+                  contained_mods=inner_mod_1_contained_mods))
+
       self.mods.append(Mod(region=self, identifier=mod_identifier, params=mod_params,
-          additional_params=mod_params_additional))
+          additional_params=mod_params_additional, contained_mods=contained_mods))
 
   def to_json(self):
     region_mod = {
@@ -200,5 +247,14 @@ class Region(object):
       'mods': [region_mod]
     }
 
-    region_contents = [region_context] + self.mods
+    region_contents = [region_context]
+
+    # Performs a depth-first search through the containership tree of all mods.
+    def _dfs_mods(cur_mods):
+      for mod in cur_mods:
+        _dfs_mods(mod.contained_mods)
+        region_contents.append(mod)
+
+    _dfs_mods(self.mods)
+
     return region_contents
