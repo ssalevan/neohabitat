@@ -30,10 +30,16 @@ mod_param = mod_param_name + ':' + Word(nums) + ";"
 mod_param_additional_line = Word(nums) + ':' + Word(nums) + ';'
 
 # pyparsing is not a recursive descent parser, so this ugly little hack takes advantage
-# of the fact that there are no more than two layers of nesting in any RDL file.
+# of the fact that there are no more than three layers of nesting in any RDL file.
+inner_mod_3 = ('@' + mod_identifier.setResultsName('inner_mod_3_identifier') + '{' +
+  ZeroOrMore(mod_param).setResultsName('inner_mod_3_params') + 
+  ZeroOrMore(mod_param_additional_line).setResultsName('inner_mod_3_params_additional') +
+  '}')
+
 inner_mod_2 = ('@' + mod_identifier.setResultsName('inner_mod_2_identifier') + '{' +
   ZeroOrMore(mod_param).setResultsName('inner_mod_2_params') + 
   ZeroOrMore(mod_param_additional_line).setResultsName('inner_mod_2_params_additional') +
+  Optional(mods_start_line + ZeroOrMore(inner_mod_3('inner_mod_3')) + mods_end_line) +
   '}')
 
 inner_mod_1 = ('@' + mod_identifier.setResultsName('inner_mod_1_identifier') + '{' +

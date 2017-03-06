@@ -1,6 +1,9 @@
 # This index maps a conversion from a numeric mod parameter field to its respective
 # Neohabitat JSON object parameter.
 
+# PLEASE NOTE: This file will not contain definitions for all Mods; only those with
+# additional fields indexed with numeric identifiers will be tracked here.
+
 # Common types:
 document: &document
   8: last_page
@@ -111,8 +114,9 @@ Street:
   9: height
 
 Super_trapezoid:
-  8: pattern_x_size
-  9: pattern_y_size
+  <<: *polygonal
+  14: pattern_x_size
+  15: pattern_y_size
   CHOMP: pattern
 
 Table:
