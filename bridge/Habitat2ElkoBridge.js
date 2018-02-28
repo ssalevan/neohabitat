@@ -27,7 +27,6 @@ const DefDefs   = {
         elko:       '127.0.0.1:9000',
         mongo:      '127.0.0.1:27017/elko',
         rate:       1200,
-        realm:      'Popustop',
         trace:      'info'};
 var  Defaults   = DefDefs;
 
@@ -39,7 +38,6 @@ try {
             elko:       userDefs.elko       || DefDefs.elko,
             mongo:      userDefs.mongo      || DefDefs.mongo,
             rate:       userDefs.rate       || DefDefs.rate,
-            realm:      userDefs.realm      || DefDefs.realm,
             trace:      userDefs.trace      || DefDefs.trace};
 } catch (e) {
     console.log("Missing/invalid defaults.elko configuration file. Proceeding with factory defaults.");
@@ -55,7 +53,6 @@ const Argv       = require('yargs')
 .option('elko',     { alias: 'e', default: Defaults.elko,    describe: 'Host:Port of the Habitat Elko Server'})
 .option('mongo',    { alias: 'm', default: Defaults.mongo,   describe: 'Mongodb server URL'})
 .option('rate',     { alias: 'r', default: Defaults.rate,    describe: 'Data rate in bits-per-second for transmitting to c64 clients'})
-.option('realm',    { alias: 'a', default: Defaults.realm,   describe: 'Realm within which to assign turfs'})
 .argv;
 
 Trace.level      = Argv.trace;
@@ -115,7 +112,6 @@ function ensureTurfAssigned(db, userRef, callback) {
         // Searches for an available turf Region and assigns it to the User if found.
         db.collection('odb').findOne({
             "mods.0.type": "Region",
-            "mods.0.realm": Argv.realm,
             "mods.0.is_turf": true,
             $or: [
                 { "mods.0.resident": { $exists: false } },
