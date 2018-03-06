@@ -1898,7 +1898,14 @@ public class Avatar extends Container implements UserMod {
                 String[] splitTurf = splitContext[1].split("\\.|_");
                 String realm = splitTurf[0].substring(0, 1).toUpperCase() + splitTurf[0].substring(1);
                 String turfId = splitTurf[1];
-                return String.format("%s #%s", realm, turfId);
+                if (splitTurf.length > 2) {
+                    // House-on-street style, e.g. 123 Street Rd
+                    String decamelRealm = realm.replaceAll("(.)(\\p{Upper})", "$1 $2");
+                    return String.format("%s %s", turfId, decamelRealm);
+                } else {
+                    // Popustop style, e.g. Popustop #123
+                    return String.format("%s #%s", realm, turfId);
+                }
             } catch (ArrayIndexOutOfBoundsException e) {
                 trace_exception(e);
                 return "unknown";
